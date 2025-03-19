@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import './index.css';
+import { App } from '@/app/App';
+import '@/styles/index.css';
 import * as Sentry from '@sentry/browser';
+import { initializeModules } from '@/modules';
 
+// Initialize Sentry for error tracking
 Sentry.init({
   dsn: import.meta.env.VITE_PUBLIC_SENTRY_DSN,
   environment: import.meta.env.VITE_PUBLIC_APP_ENV,
@@ -28,7 +30,7 @@ progressierScript.setAttribute('src', 'https://progressier.app/z8yY3IKmfpDIw3mSn
 progressierScript.setAttribute('defer', 'true');
 document.querySelector('head').appendChild(progressierScript);
 
-// Umami Analytics
+// Umami Analytics (only in production)
 if (import.meta.env.VITE_PUBLIC_APP_ENV !== 'development') {
   const script = document.createElement('script');
   script.defer = true;
@@ -37,9 +39,12 @@ if (import.meta.env.VITE_PUBLIC_APP_ENV !== 'development') {
   document.head.appendChild(script);
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Initialize all modules before rendering the app
+initializeModules().then(() => {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+});
